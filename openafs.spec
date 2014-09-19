@@ -644,68 +644,47 @@ fi
 #-f openafs-file-list
 %defattr(-,root,root)
 %config(noreplace) /etc/sysconfig/openafs
+%{_bindir}/afsmonitor
+%{_bindir}/bos
+%{_bindir}/fs
+%{_bindir}/kpasswd
+%{_bindir}/klog
+%{_bindir}/klog.krb
+%{_bindir}/pagsh
+%{_bindir}/pagsh.krb
+%{_bindir}/pts
+%{_bindir}/restorevol
+%{_bindir}/scout
+%{_bindir}/sys
+%{_bindir}/tokens
+%{_bindir}/tokens.krb
+%{_bindir}/translate_et
+%{_bindir}/xstat_cm_test
+%{_bindir}/xstat_fs_test
+%{_bindir}/udebug
+%{_bindir}/unlog
+%{_sbindir}/backup
+%{_sbindir}/butc
+%{_sbindir}/fms
+%{_sbindir}/fstrace
+%{_sbindir}/kas
+%{_sbindir}/read_tape
+%{_sbindir}/rxdebug
+%{_sbindir}/uss
+%{_sbindir}/vos
+%{_sbindir}/vsys
 #%doc %{_docdir}/openafs-%{afsvers}/LICENSE
 # TODO: figure out where these files really should end up. 
-   /usr/bin/afsmonitor
-   /usr/bin/bos
-   /usr/bin/fs
-   /usr/bin/klog
-   /usr/bin/klog.krb
    /usr/bin/knfs
    /usr/bin/livesys
-   /usr/bin/pagsh
-   /usr/bin/pagsh.krb
-   /usr/bin/pts
-   /usr/bin/restorevol
-   /usr/bin/scout
-   /usr/bin/sys
-   /usr/bin/tokens
-   /usr/bin/tokens.krb
-   /usr/bin/translate_et
-   /usr/bin/udebug
-   /usr/bin/unlog
-   /usr/bin/xstat_cm_test
-   /usr/bin/xstat_fs_test
    /usr/lib64/libjuafs.a
    /usr/lib64/libuafs.a
    /usr/lib64/pam_afs.krb.so.1
    /usr/lib64/pam_afs.so.1
-   /usr/libexec/openafs/buserver
-   /usr/libexec/openafs/dafileserver
-   /usr/libexec/openafs/dasalvager
-   /usr/libexec/openafs/davolserver
-   /usr/libexec/openafs/fileserver
-   /usr/libexec/openafs/kaserver
-   /usr/libexec/openafs/ptserver
-   /usr/libexec/openafs/salvager
-   /usr/libexec/openafs/salvageserver
-   /usr/libexec/openafs/upclient
-   /usr/libexec/openafs/upserver
-   /usr/libexec/openafs/vlserver
-   /usr/libexec/openafs/volserver
    /usr/sbin/afsd
-   /usr/sbin/backup
-   /usr/sbin/bos_util
-   /usr/sbin/bosserver
-   /usr/sbin/butc
-   /usr/sbin/dafssync-debug
-   /usr/sbin/fms
-   /usr/sbin/fssync-debug
-   /usr/sbin/fstrace
-   /usr/sbin/ka-forwarder
-   /usr/sbin/kas
    /usr/sbin/kdb
    /usr/sbin/kpwvalid
-   /usr/sbin/pt_util
-   /usr/sbin/read_tape
    /usr/sbin/rmtsysd
-   /usr/sbin/rxdebug
-   /usr/sbin/salvsync-debug
-   /usr/sbin/state_analyzer
-   /usr/sbin/uss
-   /usr/sbin/volinfo
-   /usr/sbin/vos
-   /usr/sbin/vsys
    /usr/share/doc/openafs-1.6.9/LICENSE
    /usr/share/man/man1/afs.1.gz
    /usr/share/man/man1/afsmonitor.1.gz
@@ -1037,33 +1016,29 @@ fi
 
 %files server
 %defattr(-,root,root)
-#%dir %{_prefix}/afs
-#%dir %{_prefix}/afs/bin
-#%dir %{_prefix}/afs/etc
-#%dir %{_prefix}/afs/logs
-#%{_prefix}/afs/bin/bosserver
-#%{_prefix}/afs/bin/bos_util
-#%{_prefix}/afs/bin/buserver
-#%{_prefix}/afs/bin/dafileserver
-#%{_prefix}/afs/bin/dafssync-debug
-#%{_prefix}/afs/bin/dasalvager
-#%{_prefix}/afs/bin/davolserver
-#%{_prefix}/afs/bin/fileserver
-#%{_prefix}/afs/bin/fssync-debug
+%{_sbindir}/bosserver
+%{_sbindir}/bos_util
+%{_libexecdir}/openafs/buserver
+%{_libexecdir}/openafs/dafileserver
+%{_sbindir}/dafssync-debug
+%{_libexecdir}/openafs/dasalvager
+%{_libexecdir}/openafs/davolserver
+%{_libexecdir}/openafs/fileserver
+%{_sbindir}/fssync-debug
 # Should we support KAServer?
-#%{_prefix}/afs/bin/kaserver
-#%{_prefix}/afs/bin/ka-forwarder
-#%{_prefix}/afs/bin/pt_util
-#%{_prefix}/afs/bin/ptserver
-#%{_prefix}/afs/bin/salvager
-#%{_prefix}/afs/bin/salvageserver
-#%{_prefix}/afs/bin/salvsync-debug
-#%{_prefix}/afs/bin/state_analyzer
-#%{_prefix}/afs/bin/upclient
-#%{_prefix}/afs/bin/upserver
-#%{_prefix}/afs/bin/vlserver
-#%{_prefix}/afs/bin/volinfo
-#%{_prefix}/afs/bin/volserver
+%{_libexecdir}/openafs/kaserver
+%{_sbindir}/ka-forwarder
+%{_sbindir}/pt_util
+%{_libexecdir}/openafs/ptserver
+%{_libexecdir}/openafs/salvager
+%{_libexecdir}/openafs/salvageserver
+%{_sbindir}/salvsync-debug
+%{_sbindir}/state_analyzer
+%{_libexecdir}/openafs/upclient
+%{_libexecdir}/openafs/upserver
+%{_libexecdir}/openafs/vlserver
+%{_sbindir}/volinfo
+%{_libexecdir}/openafs/volserver
 %{_sbindir}/kadb_check
 %{_sbindir}/prdb_check
 %{_sbindir}/vldb_check
