@@ -10,9 +10,6 @@
 # Define the location of your init.d directory
 %define initdir /etc/rc.d/init.d
 
-# Define the location of the PAM security module directory
-%define pamdir /%{_lib}/security
-
 # Make sure RPM doesn't complain about installed but non-packaged files.
 #define __check_files  %{nil}
 
@@ -339,8 +336,8 @@ install -m 755 src/packaging/RedHat/openafs.sysconfig $RPM_BUILD_ROOT/etc/syscon
 #install -m 755 ${sysname}/dest/lib/pam* $RPM_BUILD_ROOT%{pamdir}
 
 # PAM symlinks
-#ln -sf pam_afs.so.1 $RPM_BUILD_ROOT%{pamdir}/pam_afs.so
-#ln -sf pam_afs.krb.so.1 $RPM_BUILD_ROOT%{pamdir}/pam_afs.krb.so
+ln -sf pam_afs.so.1 $RPM_BUILD_ROOT%{_libdir}/pam_afs.so
+ln -sf pam_afs.krb.so.1 $RPM_BUILD_ROOT%{_libdir}/pam_afs.krb.so
 
 # Populate /usr/vice/etc
 #uve=$RPM_BUILD_ROOT%{_prefix}/vice/etc
@@ -679,8 +676,6 @@ fi
    /usr/bin/livesys
    /usr/lib64/libjuafs.a
    /usr/lib64/libuafs.a
-   /usr/lib64/pam_afs.krb.so.1
-   /usr/lib64/pam_afs.so.1
    /usr/sbin/afsd
    /usr/sbin/kdb
    /usr/sbin/kpwvalid
@@ -993,10 +988,10 @@ fi
 %{_bindir}/up
 #%{_prefix}/vice/etc/afsd
 #%{_prefix}/vice/etc/C/afszcm.cat
-#%{pamdir}/pam_afs.krb.so.1
-#%{pamdir}/pam_afs.krb.so
-#%{pamdir}/pam_afs.so.1
-#%{pamdir}/pam_afs.so
+%{_libdir}/pam_afs.krb.so.1
+%{_libdir}/pam_afs.krb.so
+%{_libdir}/pam_afs.so.1
+%{_libdir}/pam_afs.so
 %if 0%{?fedora} < 15 && 0%{?rhel} < 7
 %{initdir}/openafs-client
 %else
