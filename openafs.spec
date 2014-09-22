@@ -382,11 +382,11 @@ install -m 644 %{SOURCE11} $RPM_BUILD_ROOT/$RPM_DOC_DIR/openafs-%{afsvers}
 #mv $RPM_BUILD_ROOT%{_prefix}/afs/bin/asetkey $RPM_BUILD_ROOT%{_sbindir}/asetkey
 
 # remove unused man pages
-#for x in afs_ftpd afs_inetd afs_login afs_rcp afs_rlogind afs_rsh \
-#    dkload knfs package runntp symlink symlink_list symlink_make \
-#    symlink_remove; do
-#	rm -f $RPM_BUILD_ROOT%{_mandir}/man1/${x}.1
-#done
+for x in afs_ftpd afs_inetd afs_login afs_rcp afs_rlogind afs_rsh \
+    dkload knfs symlink symlink_list symlink_make \
+    symlink_remove; do
+	rm -f $RPM_BUILD_ROOT%{_mandir}/man1/${x}.1
+done
 
 # rename kpasswd to kapasswd
 #mv $RPM_BUILD_ROOT%{_mandir}/man1/kpasswd.1 $RPM_BUILD_ROOT%{_mandir}/man1/kapasswd.1
@@ -484,16 +484,16 @@ install -m 644 %{SOURCE11} $RPM_BUILD_ROOT/$RPM_DOC_DIR/openafs-%{afsvers}
 #done
 
 # not supported on Linux or duplicated
-#for f in kdb rmtsysd kpwvalid ; do
-#  rm -f $RPM_BUILD_ROOT%{_sbindir}/$f
-#done
+for f in kdb rmtsysd kpwvalid ; do
+  rm -f $RPM_BUILD_ROOT%{_sbindir}/$f
+done
 # sometimes install sucks and puts down a directory. kill it all.
 #rm -rf $RPM_BUILD_ROOT%{_sbindir}/kdump*
 
 # remove man pages from programs deleted above
-#for f in 1/dlog 1/copyauth 1/dpass 1/livesys 8/rmtsysd 8/aklog_dynamic_auth 8/kdb 8/kpwvalid 8/xfs_size_check 1/package_test 5/package 8/package ; do
-#  rm -f $RPM_BUILD_ROOT%{_mandir}/man$f.*
-#done
+for f in 1/dlog 1/copyauth 1/dpass 1/livesys 8/rmtsysd 8/aklog_dynamic_auth 8/kdb 8/kpwvalid 8/xfs_size_check 1/package_test 5/package 8/package ; do
+  rm -f $RPM_BUILD_ROOT%{_mandir}/man$f.*
+done
 
 # PAM modules are doubly-installed  Remove the version we don't need
 #for f in pam_afs.krb.so.1 pam_afs.so.1 ; do
@@ -670,6 +670,41 @@ fi
 %{_sbindir}/uss
 %{_sbindir}/vos
 %{_sbindir}/vsys
+%{_mandir}/man1/fs*.gz
+%{_mandir}/man1/pts*.gz
+%{_mandir}/man1/vos*.gz
+%{_mandir}/man1/afs.1.gz
+%{_mandir}/man1/afsmonitor.1.gz
+%{_mandir}/man1/klog.1.gz
+%{_mandir}/man1/klog.krb.1.gz
+%{_mandir}/man1/pagsh.1.gz
+%{_mandir}/man1/pagsh.krb.1.gz
+%{_mandir}/man1/kpasswd.1.gz
+%{_mandir}/man1/rxdebug.1.gz
+%{_mandir}/man1/restorevol.1.gz
+%{_mandir}/man1/scout.1.gz
+%{_mandir}/man1/tokens.1.gz
+%{_mandir}/man1/tokens.krb.1.gz
+%{_mandir}/man1/translate_et.1.gz
+%{_mandir}/man1/xstat_cm_test.1.gz
+%{_mandir}/man1/xstat_fs_test.1.gz
+%{_mandir}/man5/afsmonitor.5.gz
+%{_mandir}/man1/udebug.1.gz
+%{_mandir}/man1/unlog.1.gz
+%{_mandir}/man5/uss.5.gz
+%{_mandir}/man5/uss_bulk.5.gz
+%{_mandir}/man8/bos*
+%{_mandir}/man8/fstrace*
+%{_mandir}/man8/kas*
+%{_mandir}/man8/kpwvalid.8.gz
+%{_mandir}/man1/sys.1.gz
+%{_mandir}/man8/backup*
+%{_mandir}/man5/butc.5.gz
+%{_mandir}/man5/butc_logs.5.gz
+%{_mandir}/man8/butc.8.gz
+%{_mandir}/man8/fms.8.gz
+%{_mandir}/man8/read_tape.8.gz
+%{_mandir}/man8/fssync-debug*
 #%doc %{_docdir}/openafs-%{afsvers}/LICENSE
 # TODO: figure out where these files really should end up. 
    /usr/bin/knfs
@@ -681,281 +716,14 @@ fi
    /usr/sbin/kpwvalid
    /usr/sbin/rmtsysd
    /usr/share/doc/openafs-1.6.9/LICENSE
-   /usr/share/man/man1/afs.1.gz
-   /usr/share/man/man1/afsmonitor.1.gz
    /usr/share/man/man1/copyauth.1.gz
    /usr/share/man/man1/dlog.1.gz
-   /usr/share/man/man1/fs.1.gz
-   /usr/share/man/man1/fs_apropos.1.gz
-   /usr/share/man/man1/fs_bypassthreshold.1.gz
-   /usr/share/man/man1/fs_checkservers.1.gz
-   /usr/share/man/man1/fs_checkvolumes.1.gz
-   /usr/share/man/man1/fs_chgrp.1.gz
-   /usr/share/man/man1/fs_chown.1.gz
-   /usr/share/man/man1/fs_cleanacl.1.gz
-   /usr/share/man/man1/fs_copyacl.1.gz
-   /usr/share/man/man1/fs_cscpolicy.1.gz
-   /usr/share/man/man1/fs_diskfree.1.gz
-   /usr/share/man/man1/fs_examine.1.gz
-   /usr/share/man/man1/fs_exportafs.1.gz
-   /usr/share/man/man1/fs_flush.1.gz
-   /usr/share/man/man1/fs_flushall.1.gz
-   /usr/share/man/man1/fs_flushmount.1.gz
-   /usr/share/man/man1/fs_flushvolume.1.gz
-   /usr/share/man/man1/fs_getcacheparms.1.gz
-   /usr/share/man/man1/fs_getcalleraccess.1.gz
-   /usr/share/man/man1/fs_getcellstatus.1.gz
-   /usr/share/man/man1/fs_getclientaddrs.1.gz
-   /usr/share/man/man1/fs_getcrypt.1.gz
-   /usr/share/man/man1/fs_getfid.1.gz
-   /usr/share/man/man1/fs_getserverprefs.1.gz
-   /usr/share/man/man1/fs_help.1.gz
-   /usr/share/man/man1/fs_listacl.1.gz
-   /usr/share/man/man1/fs_listaliases.1.gz
-   /usr/share/man/man1/fs_listcells.1.gz
-   /usr/share/man/man1/fs_listquota.1.gz
-   /usr/share/man/man1/fs_lsmount.1.gz
-   /usr/share/man/man1/fs_memdump.1.gz
-   /usr/share/man/man1/fs_messages.1.gz
-   /usr/share/man/man1/fs_minidump.1.gz
-   /usr/share/man/man1/fs_mkmount.1.gz
-   /usr/share/man/man1/fs_monitor.1.gz
-   /usr/share/man/man1/fs_newalias.1.gz
-   /usr/share/man/man1/fs_newcell.1.gz
-   /usr/share/man/man1/fs_quota.1.gz
-   /usr/share/man/man1/fs_rmmount.1.gz
-   /usr/share/man/man1/fs_rxstatpeer.1.gz
-   /usr/share/man/man1/fs_rxstatproc.1.gz
-   /usr/share/man/man1/fs_setacl.1.gz
-   /usr/share/man/man1/fs_setcachesize.1.gz
-   /usr/share/man/man1/fs_setcbaddr.1.gz
-   /usr/share/man/man1/fs_setcell.1.gz
-   /usr/share/man/man1/fs_setclientaddrs.1.gz
-   /usr/share/man/man1/fs_setcrypt.1.gz
-   /usr/share/man/man1/fs_setquota.1.gz
-   /usr/share/man/man1/fs_setserverprefs.1.gz
-   /usr/share/man/man1/fs_setvol.1.gz
-   /usr/share/man/man1/fs_storebehind.1.gz
-   /usr/share/man/man1/fs_sysname.1.gz
-   /usr/share/man/man1/fs_trace.1.gz
-   /usr/share/man/man1/fs_uuid.1.gz
-   /usr/share/man/man1/fs_whereis.1.gz
-   /usr/share/man/man1/fs_whichcell.1.gz
-   /usr/share/man/man1/fs_wscell.1.gz
-   /usr/share/man/man1/klog.1.gz
-   /usr/share/man/man1/klog.krb.1.gz
-   /usr/share/man/man1/klog.krb5.1.gz
-   /usr/share/man/man1/knfs.1.gz
-   /usr/share/man/man1/kpasswd.1.gz
    /usr/share/man/man1/livesys.1.gz
-   /usr/share/man/man1/pagsh.1.gz
-   /usr/share/man/man1/pagsh.krb.1.gz
-   /usr/share/man/man1/pts.1.gz
-   /usr/share/man/man1/pts_adduser.1.gz
-   /usr/share/man/man1/pts_apropos.1.gz
-   /usr/share/man/man1/pts_chown.1.gz
-   /usr/share/man/man1/pts_creategroup.1.gz
-   /usr/share/man/man1/pts_createuser.1.gz
-   /usr/share/man/man1/pts_delete.1.gz
-   /usr/share/man/man1/pts_examine.1.gz
-   /usr/share/man/man1/pts_help.1.gz
-   /usr/share/man/man1/pts_interactive.1.gz
-   /usr/share/man/man1/pts_listentries.1.gz
-   /usr/share/man/man1/pts_listmax.1.gz
-   /usr/share/man/man1/pts_listowned.1.gz
-   /usr/share/man/man1/pts_membership.1.gz
-   /usr/share/man/man1/pts_quit.1.gz
-   /usr/share/man/man1/pts_removeuser.1.gz
-   /usr/share/man/man1/pts_rename.1.gz
-   /usr/share/man/man1/pts_setfields.1.gz
-   /usr/share/man/man1/pts_setmax.1.gz
-   /usr/share/man/man1/pts_sleep.1.gz
-   /usr/share/man/man1/pts_source.1.gz
-   /usr/share/man/man1/restorevol.1.gz
-   /usr/share/man/man1/rxdebug.1.gz
-   /usr/share/man/man1/scout.1.gz
-   /usr/share/man/man1/symlink.1.gz
-   /usr/share/man/man1/symlink_list.1.gz
-   /usr/share/man/man1/symlink_make.1.gz
-   /usr/share/man/man1/symlink_remove.1.gz
-   /usr/share/man/man1/sys.1.gz
-   /usr/share/man/man1/tokens.1.gz
-   /usr/share/man/man1/tokens.krb.1.gz
-   /usr/share/man/man1/translate_et.1.gz
-   /usr/share/man/man1/udebug.1.gz
-   /usr/share/man/man1/unlog.1.gz
-   /usr/share/man/man1/vos.1.gz
-   /usr/share/man/man1/vos_addsite.1.gz
-   /usr/share/man/man1/vos_apropos.1.gz
-   /usr/share/man/man1/vos_backup.1.gz
-   /usr/share/man/man1/vos_backupsys.1.gz
-   /usr/share/man/man1/vos_changeaddr.1.gz
-   /usr/share/man/man1/vos_changeloc.1.gz
-   /usr/share/man/man1/vos_clone.1.gz
-   /usr/share/man/man1/vos_convertROtoRW.1.gz
-   /usr/share/man/man1/vos_copy.1.gz
-   /usr/share/man/man1/vos_create.1.gz
-   /usr/share/man/man1/vos_delentry.1.gz
-   /usr/share/man/man1/vos_dump.1.gz
-   /usr/share/man/man1/vos_endtrans.1.gz
-   /usr/share/man/man1/vos_examine.1.gz
-   /usr/share/man/man1/vos_help.1.gz
-   /usr/share/man/man1/vos_listaddrs.1.gz
-   /usr/share/man/man1/vos_listpart.1.gz
-   /usr/share/man/man1/vos_listvldb.1.gz
-   /usr/share/man/man1/vos_listvol.1.gz
-   /usr/share/man/man1/vos_lock.1.gz
-   /usr/share/man/man1/vos_move.1.gz
-   /usr/share/man/man1/vos_offline.1.gz
-   /usr/share/man/man1/vos_online.1.gz
-   /usr/share/man/man1/vos_partinfo.1.gz
-   /usr/share/man/man1/vos_release.1.gz
-   /usr/share/man/man1/vos_remove.1.gz
-   /usr/share/man/man1/vos_remsite.1.gz
-   /usr/share/man/man1/vos_rename.1.gz
-   /usr/share/man/man1/vos_restore.1.gz
-   /usr/share/man/man1/vos_setaddrs.1.gz
-   /usr/share/man/man1/vos_setfields.1.gz
-   /usr/share/man/man1/vos_shadow.1.gz
-   /usr/share/man/man1/vos_size.1.gz
-   /usr/share/man/man1/vos_status.1.gz
-   /usr/share/man/man1/vos_syncserv.1.gz
-   /usr/share/man/man1/vos_syncvldb.1.gz
-   /usr/share/man/man1/vos_unlock.1.gz
-   /usr/share/man/man1/vos_unlockvldb.1.gz
-   /usr/share/man/man1/vos_zap.1.gz
-   /usr/share/man/man1/xstat_cm_test.1.gz
-   /usr/share/man/man1/xstat_fs_test.1.gz
    /usr/share/man/man5/CellServDB.5.gz
    /usr/share/man/man5/ThisCell.5.gz
-   /usr/share/man/man5/afsmonitor.5.gz
-   /usr/share/man/man5/butc.5.gz
-   /usr/share/man/man5/butc_logs.5.gz
-   /usr/share/man/man5/uss.5.gz
-   /usr/share/man/man5/uss_bulk.5.gz
    /usr/share/man/man8/aklog_dynamic_auth.8.gz
-   /usr/share/man/man8/backup.8.gz
-   /usr/share/man/man8/backup_adddump.8.gz
-   /usr/share/man/man8/backup_addhost.8.gz
-   /usr/share/man/man8/backup_addvolentry.8.gz
-   /usr/share/man/man8/backup_addvolset.8.gz
-   /usr/share/man/man8/backup_apropos.8.gz
-   /usr/share/man/man8/backup_dbverify.8.gz
-   /usr/share/man/man8/backup_deldump.8.gz
-   /usr/share/man/man8/backup_deletedump.8.gz
-   /usr/share/man/man8/backup_delhost.8.gz
-   /usr/share/man/man8/backup_delvolentry.8.gz
-   /usr/share/man/man8/backup_delvolset.8.gz
-   /usr/share/man/man8/backup_diskrestore.8.gz
-   /usr/share/man/man8/backup_dump.8.gz
-   /usr/share/man/man8/backup_dumpinfo.8.gz
-   /usr/share/man/man8/backup_help.8.gz
-   /usr/share/man/man8/backup_interactive.8.gz
-   /usr/share/man/man8/backup_jobs.8.gz
-   /usr/share/man/man8/backup_kill.8.gz
-   /usr/share/man/man8/backup_labeltape.8.gz
-   /usr/share/man/man8/backup_listdumps.8.gz
-   /usr/share/man/man8/backup_listhosts.8.gz
-   /usr/share/man/man8/backup_listvolsets.8.gz
-   /usr/share/man/man8/backup_quit.8.gz
-   /usr/share/man/man8/backup_readlabel.8.gz
-   /usr/share/man/man8/backup_restoredb.8.gz
-   /usr/share/man/man8/backup_savedb.8.gz
-   /usr/share/man/man8/backup_scantape.8.gz
-   /usr/share/man/man8/backup_setexp.8.gz
-   /usr/share/man/man8/backup_status.8.gz
-   /usr/share/man/man8/backup_volinfo.8.gz
-   /usr/share/man/man8/backup_volrestore.8.gz
-   /usr/share/man/man8/backup_volsetrestore.8.gz
-   /usr/share/man/man8/bos.8.gz
-   /usr/share/man/man8/bos_addhost.8.gz
-   /usr/share/man/man8/bos_addkey.8.gz
-   /usr/share/man/man8/bos_adduser.8.gz
-   /usr/share/man/man8/bos_apropos.8.gz
-   /usr/share/man/man8/bos_create.8.gz
-   /usr/share/man/man8/bos_delete.8.gz
-   /usr/share/man/man8/bos_exec.8.gz
-   /usr/share/man/man8/bos_getdate.8.gz
-   /usr/share/man/man8/bos_getlog.8.gz
-   /usr/share/man/man8/bos_getrestart.8.gz
-   /usr/share/man/man8/bos_getrestricted.8.gz
-   /usr/share/man/man8/bos_help.8.gz
-   /usr/share/man/man8/bos_install.8.gz
-   /usr/share/man/man8/bos_listhosts.8.gz
-   /usr/share/man/man8/bos_listkeys.8.gz
-   /usr/share/man/man8/bos_listusers.8.gz
-   /usr/share/man/man8/bos_prune.8.gz
-   /usr/share/man/man8/bos_removehost.8.gz
-   /usr/share/man/man8/bos_removekey.8.gz
-   /usr/share/man/man8/bos_removeuser.8.gz
-   /usr/share/man/man8/bos_restart.8.gz
-   /usr/share/man/man8/bos_salvage.8.gz
-   /usr/share/man/man8/bos_setauth.8.gz
-   /usr/share/man/man8/bos_setcellname.8.gz
-   /usr/share/man/man8/bos_setrestart.8.gz
-   /usr/share/man/man8/bos_setrestricted.8.gz
-   /usr/share/man/man8/bos_shutdown.8.gz
-   /usr/share/man/man8/bos_start.8.gz
-   /usr/share/man/man8/bos_startup.8.gz
-   /usr/share/man/man8/bos_status.8.gz
-   /usr/share/man/man8/bos_stop.8.gz
-   /usr/share/man/man8/bos_uninstall.8.gz
-   /usr/share/man/man8/bos_util.8.gz
-   /usr/share/man/man8/bosserver.8.gz
-   /usr/share/man/man8/butc.8.gz
    /usr/share/man/man8/dafssync-debug.8.gz
-   /usr/share/man/man8/fms.8.gz
-   /usr/share/man/man8/fssync-debug.8.gz
-   /usr/share/man/man8/fssync-debug_attach.8.gz
-   /usr/share/man/man8/fssync-debug_callback.8.gz
-   /usr/share/man/man8/fssync-debug_detach.8.gz
-   /usr/share/man/man8/fssync-debug_error.8.gz
-   /usr/share/man/man8/fssync-debug_header.8.gz
-   /usr/share/man/man8/fssync-debug_leaveoff.8.gz
-   /usr/share/man/man8/fssync-debug_list.8.gz
-   /usr/share/man/man8/fssync-debug_mode.8.gz
-   /usr/share/man/man8/fssync-debug_move.8.gz
-   /usr/share/man/man8/fssync-debug_offline.8.gz
-   /usr/share/man/man8/fssync-debug_online.8.gz
-   /usr/share/man/man8/fssync-debug_query.8.gz
-   /usr/share/man/man8/fssync-debug_stats.8.gz
-   /usr/share/man/man8/fssync-debug_vgcadd.8.gz
-   /usr/share/man/man8/fssync-debug_vgcdel.8.gz
-   /usr/share/man/man8/fssync-debug_vgcquery.8.gz
-   /usr/share/man/man8/fssync-debug_vgcscan.8.gz
-   /usr/share/man/man8/fssync-debug_vgcscanall.8.gz
-   /usr/share/man/man8/fssync-debug_vnode.8.gz
-   /usr/share/man/man8/fssync-debug_volop.8.gz
-   /usr/share/man/man8/fstrace.8.gz
-   /usr/share/man/man8/fstrace_apropos.8.gz
-/usr/share/man/man8/fstrace_clear.8.gz
-/usr/share/man/man8/fstrace_dump.8.gz
-/usr/share/man/man8/fstrace_help.8.gz
-/usr/share/man/man8/fstrace_lslog.8.gz
-/usr/share/man/man8/fstrace_lsset.8.gz
-/usr/share/man/man8/fstrace_setlog.8.gz
-/usr/share/man/man8/fstrace_setset.8.gz
-/usr/share/man/man8/kas.8.gz
-/usr/share/man/man8/kas_apropos.8.gz
-/usr/share/man/man8/kas_create.8.gz
-/usr/share/man/man8/kas_delete.8.gz
-/usr/share/man/man8/kas_examine.8.gz
-/usr/share/man/man8/kas_forgetticket.8.gz
-/usr/share/man/man8/kas_help.8.gz
-/usr/share/man/man8/kas_interactive.8.gz
-/usr/share/man/man8/kas_list.8.gz
-/usr/share/man/man8/kas_listtickets.8.gz
-/usr/share/man/man8/kas_noauthentication.8.gz
-/usr/share/man/man8/kas_quit.8.gz
-/usr/share/man/man8/kas_setfields.8.gz
-/usr/share/man/man8/kas_setpassword.8.gz
-/usr/share/man/man8/kas_statistics.8.gz
-/usr/share/man/man8/kas_stringtokey.8.gz
-/usr/share/man/man8/kas_unlock.8.gz
-/usr/share/man/man8/kaserver.8.gz
 /usr/share/man/man8/kdb.8.gz
-/usr/share/man/man8/kpwvalid.8.gz
-/usr/share/man/man8/read_tape.8.gz
 /usr/share/man/man8/rmtsysd.8.gz
 /usr/share/man/man8/uss.8.gz
 /usr/share/man/man8/uss_add.8.gz
@@ -1160,5 +928,6 @@ fi
 %{_bindir}/klog.krb5
 %{_bindir}/asetkey
 %{_mandir}/man1/aklog.*
+%{_mandir}/man1/klog.krb5.1.gz
 %{_mandir}/man8/asetkey.*
 
