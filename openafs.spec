@@ -160,21 +160,6 @@ administrative management.
 This package provides HTML documentation for OpenAFS users and system
 administrators.
 
-%package kernel-source
-Summary: OpenAFS Kernel Module source tree
-Group: Networking/Filesystems
-Provides: openafs-kernel = %{version}
-Provides: %{name}-kmod = %{version}
-
-%description kernel-source
-The AFS distributed filesystem.  AFS is a distributed filesystem
-allowing cross-platform sharing of files among multiple computers.
-Facilities are provided for access control, authentication, backup and
-administrative management.
-
-This package provides the source code to build your own AFS kernel
-module.
-
 %package kpasswd
 Summary: OpenAFS KA kpasswd support
 Requires: openafs
@@ -283,12 +268,6 @@ install -m 755 src/packaging/RedHat/openafs.sysconfig $RPM_BUILD_ROOT/etc/syscon
 # PAM symlinks
 ln -sf pam_afs.so.1 $RPM_BUILD_ROOT%{_libdir}/pam_afs.so
 ln -sf pam_afs.krb.so.1 $RPM_BUILD_ROOT%{_libdir}/pam_afs.krb.so
-
-# Next, copy the LICENSE Files, README
-mkdir -p $RPM_BUILD_ROOT%{_prefix}/src/openafs-kernel-%{afsvers}/
-install -m 644 src/LICENSE $RPM_BUILD_ROOT%{_prefix}/src/openafs-kernel-%{afsvers}/LICENSE.IBM
-install -m 644 src/packaging/RedHat/openafs-LICENSE.Sun $RPM_BUILD_ROOT%{_prefix}/src/openafs-kernel-%{afsvers}/LICENSE.Sun
-install -m 644 src/packaging/RedHat/openafs-README $RPM_BUILD_ROOT%{_prefix}/src/openafs-kernel-%{afsvers}/README
 
 #
 # Install DOCUMENTATION
@@ -708,13 +687,6 @@ fi
 %{_libdir}/libubik.a
 %{_mandir}/man1/rxgen.*
 %{_mandir}/man1/afs_compile_et.*
-
-%files kernel-source
-%defattr(-,root,root)
-%{_prefix}/src/openafs-kernel-%{afsvers}/LICENSE.IBM
-%{_prefix}/src/openafs-kernel-%{afsvers}/LICENSE.Sun
-%{_prefix}/src/openafs-kernel-%{afsvers}/README
-#%{_prefix}/src/openafs-kernel-%{afsvers}/src
 
 %files kpasswd
 %defattr(-,root,root)
