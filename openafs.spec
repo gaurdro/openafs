@@ -261,9 +261,16 @@ esac
 # Copy root.client config files
 mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
 install -m 755 src/packaging/RedHat/openafs.sysconfig $RPM_BUILD_ROOT/etc/sysconfig/openafs
-#%if 0%{?fedora} < 15 && 0%{?rhel} < 7
-#install -m 755 src/packaging/RedHat/openafs-client.init $RPM_BUILD_ROOT%{initdir}/openafs-client
-#install -m 755 src/packaging/RedHat/openafs-server.init $RPM_BUILD_ROOT%{initdir}/openafs-server
+%if 0%{?fedora} < 15 && 0%{?rhel} < 7
+install -m 755 src/packaging/RedHat/openafs-client.init $RPM_BUILD_ROOT%{initdir}/openafs-client
+install -m 755 src/packaging/RedHat/openafs-server.init $RPM_BUILD_ROOT%{initdir}/openafs-server
+%else
+mkdir -p $RPM_BUILD_ROOT%{_unitdir}
+mkdir -p $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/modules
+install -m 755 src/packaging/RedHat/openafs-client.service $RPM_BUILD_ROOT%{_unitdir}/openafs-client.service
+install -m 755 src/packaging/RedHat/openafs-client.modules $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/modules/openafs-client.modules
+install -m 755 src/packaging/RedHat/openafs-server.service $RPM_BUILD_ROOT%{_unitdir}/openafs-server.service
+%endif
 
 # PAM symlinks
 ln -sf pam_afs.so.1 $RPM_BUILD_ROOT%{_libdir}/pam_afs.so
@@ -544,8 +551,8 @@ fi
 %if 0%{?fedora} < 15 && 0%{?rhel} < 7
 %{initdir}/openafs-client
 %else
-#%{_unitdir}/openafs-client.service
-#%{_sysconfdir}/sysconfig/modules/openafs-client.modules
+%{_unitdir}/openafs-client.service
+%{_sysconfdir}/sysconfig/modules/openafs-client.modules
 %endif
 %{_mandir}/man1/cmdebug.*
 %{_mandir}/man1/up.*
@@ -591,7 +598,7 @@ fi
 %if 0%{?fedora} < 15 && 0%{?rhel} < 7
 %{initdir}/openafs-server
 %else
-#%{_unitdir}/openafs-server.service
+%{_unitdir}/openafs-server.service
 %endif
 %{_mandir}/man5/AuthLog.*
 %{_mandir}/man5/BackupLog.*
