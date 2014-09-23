@@ -475,13 +475,13 @@ done
 
 # remove duplicated files from /usr/afs/bin
 #for f in bos fs kas klog klog.krb kpwvalid pts tokens tokens.krb udebug vos ; do
-#  rm -f $RPM_BUILD_ROOT%{_prefix}/afs/bin/$f
+#  rm -f $RPM_BUILD_ROOT%{_prefix}/bin/$f
 #done
 
 # the rest are not needed.
-#for f in dlog dpass install knfs livesys ; do
-#  rm -f $RPM_BUILD_ROOT%{_bindir}/$f
-#done
+for f in dlog dpass install knfs livesys ; do
+  rm -f $RPM_BUILD_ROOT%{_bindir}/$f
+done
 
 # not supported on Linux or duplicated
 for f in kdb rmtsysd kpwvalid ; do
@@ -696,7 +696,6 @@ fi
 %{_mandir}/man8/bos*
 %{_mandir}/man8/fstrace*
 %{_mandir}/man8/kas*
-%{_mandir}/man8/kpwvalid.8.gz
 %{_mandir}/man1/sys.1.gz
 %{_mandir}/man8/backup*
 %{_mandir}/man5/butc.5.gz
@@ -707,31 +706,19 @@ fi
 %{_mandir}/man8/fssync-debug*
 #%doc %{_docdir}/openafs-%{afsvers}/LICENSE
 # TODO: figure out where these files really should end up. 
-   /usr/bin/knfs
-   /usr/bin/livesys
    /usr/lib64/libjuafs.a
    /usr/lib64/libuafs.a
    /usr/sbin/afsd
-   /usr/sbin/kdb
-   /usr/sbin/kpwvalid
-   /usr/sbin/rmtsysd
    /usr/share/doc/openafs-1.6.9/LICENSE
-   /usr/share/man/man1/copyauth.1.gz
-   /usr/share/man/man1/dlog.1.gz
-   /usr/share/man/man1/livesys.1.gz
    /usr/share/man/man5/CellServDB.5.gz
    /usr/share/man/man5/ThisCell.5.gz
-   /usr/share/man/man8/aklog_dynamic_auth.8.gz
    /usr/share/man/man8/dafssync-debug.8.gz
-/usr/share/man/man8/kdb.8.gz
-/usr/share/man/man8/rmtsysd.8.gz
 /usr/share/man/man8/uss.8.gz
 /usr/share/man/man8/uss_add.8.gz
 /usr/share/man/man8/uss_apropos.8.gz
 /usr/share/man/man8/uss_bulk.8.gz
 /usr/share/man/man8/uss_delete.8.gz
 /usr/share/man/man8/uss_help.8.gz
-/usr/share/man/man8/xfs_size_check.8.gz
 /usr/share/openafs/C/afszcm.cat
 
 %files docs
