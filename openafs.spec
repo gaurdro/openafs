@@ -501,7 +501,9 @@ done
 #done
 
 #%endif
-
+#delete static libraries not in upstream package
+rm -f $RPM_BUILD_ROOT%{_libdir}/libjuafs.a
+rm -f $RPM_BUILD_ROOT%{_libdir}/libuafs.a
 #delete unpackaged files
 #rm -rf ${RPM_BUILD_ROOT}/usr/src/openafs-%{version}-%{pkgrel}%{?dist}/
 #rm -rf ${RPM_BUILD_ROOT}/usr/src/openafs-%{version}-%{pkgrel}%{?dist}/.version
@@ -704,22 +706,10 @@ fi
 %{_mandir}/man8/fms.8.gz
 %{_mandir}/man8/read_tape.8.gz
 %{_mandir}/man8/fssync-debug*
-#%doc %{_docdir}/openafs-%{afsvers}/LICENSE
-# TODO: figure out where these files really should end up. 
-   /usr/lib64/libjuafs.a
-   /usr/lib64/libuafs.a
-   /usr/sbin/afsd
-   /usr/share/doc/openafs-1.6.9/LICENSE
-   /usr/share/man/man5/CellServDB.5.gz
-   /usr/share/man/man5/ThisCell.5.gz
-   /usr/share/man/man8/dafssync-debug.8.gz
-/usr/share/man/man8/uss.8.gz
-/usr/share/man/man8/uss_add.8.gz
-/usr/share/man/man8/uss_apropos.8.gz
-/usr/share/man/man8/uss_bulk.8.gz
-/usr/share/man/man8/uss_delete.8.gz
-/usr/share/man/man8/uss_help.8.gz
-/usr/share/openafs/C/afszcm.cat
+%{_mandir}/man8/uss*
+%{_mandir}/man5/CellServDB.5.gz
+%{_mandir}/man5/ThisCell.5.gz
+%doc %{_docdir}/openafs-%{afsvers}/LICENSE
 
 %files docs
 %defattr(-,root,root)
@@ -741,8 +731,8 @@ fi
 %{_bindir}/afsio
 %{_bindir}/cmdebug
 %{_bindir}/up
-#%{_prefix}/vice/etc/afsd
-#%{_prefix}/vice/etc/C/afszcm.cat
+%{_sbindir}/afsd
+%{_prefix}/share/openafs/C/afszcm.cat
 %{_libdir}/pam_afs.krb.so.1
 %{_libdir}/pam_afs.krb.so
 %{_libdir}/pam_afs.so.1
@@ -828,6 +818,7 @@ fi
 %{_mandir}/man8/buserver.*
 %{_mandir}/man8/fileserver.*
 %{_mandir}/man8/dafileserver.*
+%{_mandir}/man8/dafssync-debug.*
 %{_mandir}/man8/dasalvager.*
 %{_mandir}/man8/davolserver.*
 %{_mandir}/man8/kadb_check.*
