@@ -175,23 +175,6 @@ administrative management.
 This package provides the source code to build your own AFS kernel
 module.
 
-#%package compat
-#Summary: OpenAFS client compatibility symlinks
-#Requires: openafs = %{version}, openafs-client = %{version}
-#Group: Networking/Filesystems
-#Obsoletes: openafs-client-compat
-
-#%description compat
-#The AFS distributed filesystem.  AFS is a distributed filesystem
-#allowing cross-platform sharing of files among multiple computers.
-#Facilities are provided for access control, authentication, backup and
-#administrative management.
-
-#This package provides compatibility symlinks in /usr/afsws.  It is
-#completely optional, and is only necessary to support legacy
-#applications and scripts that hard-code the location of AFS client
-#programs.
-
 %package kpasswd
 Summary: OpenAFS KA kpasswd support
 Requires: openafs
@@ -526,11 +509,6 @@ rm -f openafs-file-list
 ### scripts
 ###
 ##############################################################################
-
-#%pre compat
-#if [ -e %{_prefix}/afsws ]; then
-#        /bin/rm -fr %{_prefix}/afsws
-#fi
 
 %post client
 %if 0%{?fedora} < 15 && 0%{?rhel} < 7
@@ -891,9 +869,6 @@ fi
 %{_prefix}/src/openafs-kernel-%{afsvers}/README
 #%{_prefix}/src/openafs-kernel-%{afsvers}/src
 
-#%files compat
-#%defattr(-,root,root)
-#%{_prefix}/afsws
 
 %files kpasswd
 %defattr(-,root,root)
