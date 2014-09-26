@@ -459,7 +459,6 @@ fi
 %{_bindir}/afsmonitor
 %{_bindir}/bos
 %{_bindir}/fs
-%{_bindir}/kpasswd
 %{_bindir}/klog
 %{_bindir}/klog.krb
 %{_bindir}/pagsh
@@ -494,7 +493,6 @@ fi
 %{_mandir}/man1/klog.krb.1.gz
 %{_mandir}/man1/pagsh.1.gz
 %{_mandir}/man1/pagsh.krb.1.gz
-%{_mandir}/man1/kpasswd.1.gz
 %{_mandir}/man1/rxdebug.1.gz
 %{_mandir}/man1/restorevol.1.gz
 %{_mandir}/man1/scout.1.gz
@@ -701,6 +699,7 @@ fi
 %defattr(-,root,root)
 %{_bindir}/kpasswd
 %{_bindir}/kpwvalid
+%{_mandir}/man1/kpasswd.1.gz
 
 %files krb5
 %defattr(-,root,root)
