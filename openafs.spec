@@ -193,6 +193,54 @@ This package provides compatibility programs so you can use krb5
 to authenticate to AFS services, instead of using AFS's homegrown
 krb4 lookalike services.
 
+%package compat
+Summary: OpenAFS client compatibility symlinks
+Requires: openafs = %{version}, openafs-client = %{version}
+Group: Networking/Filesystems
+Obsoletes: openafs-client-compat
+
+%description compat
+The AFS distributed filesystem.  AFS is a distributed filesystem
+allowing cross-platform sharing of files among multiple computers.
+Facilities are provided for access control, authentication, backup and
+administrative management.
+
+This package provides compatibility symlinks in /usr/afsws.  It is
+completely optional, and is only necessary to support legacy
+applications and scripts that hard-code the location of AFS client
+programs.
+
+%package transarc-client
+Summary: OpenAFS client compatibility symlinks
+Requires: openafs = %{version}, openafs-client = %{version}
+Group: Networking/Filesystems
+
+%description transarc-client
+The AFS distributed filesystem.  AFS is a distributed filesystem
+allowing cross-platform sharing of files among multiple computers.
+Facilities are provided for access control, authentication, backup and
+administrative management.
+
+This package provides compatibility symlinks for Transarc paths.  It
+is completely optional, and is only necessary to support legacy
+applications and scripts that hard-code the location of AFS client
+programs.
+
+%package transarc-server
+Summary: OpenAFS client compatibility symlinks
+Requires: openafs = %{version}, openafs-server = %{version}
+Group: Networking/Filesystems
+
+%description transarc-server
+The AFS distributed filesystem.  AFS is a distributed filesystem
+allowing cross-platform sharing of files among multiple computers.
+Facilities are provided for access control, authentication, backup and
+administrative management.
+
+This package provides compatibility symlinks for Transarc paths.  It
+is completely optional, and is only necessary to support legacy
+applications and scripts that hard-code the location of AFS client
+programs.
 
 ##############################################################################
 #
@@ -310,6 +358,95 @@ done
 
 # rename kpasswd to kapasswd
 #mv $RPM_BUILD_ROOT%{_mandir}/man1/kpasswd.1 $RPM_BUILD_ROOT%{_mandir}/man1/kapasswd.1
+
+#
+# create filelist
+#
+grep -v "^#" >openafs-file-list <<EOF-openafs-file-list
+%{_bindir}/afsmonitor
+%{_bindir}/bos
+%{_bindir}/fs
+%{_bindir}/kapasswd
+%{_bindir}/klog
+%{_bindir}/klog.krb
+%{_bindir}/pagsh
+%{_bindir}/pagsh.krb
+%{_bindir}/pts
+%{_bindir}/restorevol
+%{_bindir}/scout
+%{_bindir}/sys
+%{_bindir}/tokens
+%{_bindir}/tokens.krb
+%{_bindir}/translate_et
+%{_bindir}/xstat_cm_test
+%{_bindir}/xstat_fs_test
+%{_bindir}/udebug
+%{_bindir}/unlog
+%{_sbindir}/backup
+%{_sbindir}/butc
+%{_sbindir}/fms
+%{_sbindir}/fstrace
+%{_sbindir}/kas
+%{_sbindir}/read_tape
+%{_sbindir}/rxdebug
+%{_sbindir}/uss
+%{_sbindir}/vos
+%{_sbindir}/vsys
+EOF-openafs-file-list
+
+# add man pages to the list
+cat openafs-man1files \
+        | ( while read x; do echo "%{_mandir}/man1/$x"; done ) \
+        >>openafs-file-list
+cat openafs-man5files \
+        | ( while read x; do echo "%{_mandir}/man5/$x"; done ) \
+        >>openafs-file-list
+cat openafs-man8files \
+        | ( while read x; do echo "%{_mandir}/man8/$x"; done ) \
+        >>openafs-file-list
+
+#
+# Install compatiblity links
+#
+for d in bin:bin etc:sbin; do
+  olddir=`echo $d | sed 's/:.*$//'`
+  newdir=`echo $d | sed 's/^.*://'`
+  mkdir -p $RPM_BUILD_ROOT%{_prefix}/afsws/$olddir
+  for f in `cat openafs-file-list`; do
+    if echo $f | grep -q /$newdir/; then
+      fb=`basename $f`
+      ln -sf %{_prefix}/$newdir/$fb $RPM_BUILD_ROOT%{_prefix}/afsws/$olddir/$fb
+    fi
+  done
+done
+
+#
+# Install transarc links
+#
+## Client
+mkdir $RPM_BUILD_ROOT%{_prefix}/vice
+ln -s %{_sysconfdir}/sysconfig/openafs $RPM_BUILD_ROOT%{_prefix}/vice/etc
+ln -s %{_localstatedir}/cache/openafs $RPM_BUILD_ROOT%{_prefix}/vice/cache
+
+## Server
+mkdir $RPM_BUILD_ROOT%{_prefix}/afs
+ln -s %{_sysconfdir}/sysconfig/openafs/server $RPM_BUILD_ROOT%{_prefix}/afs/etc
+ln -s %{_localstatedir}/openafs $RPM_BUILD_ROOT%{_prefix}/afs/local
+ln -s %{_localstatedir}/openafs/db $RPM_BUILD_ROOT%{_prefix}/afs/db
+ln -s %{_localstatedir}/openafs/logs $RPM_BUILD_ROOT%{_prefix}/afs/logs
+ln -s %{_localstatedir}/openafs/backup $RPM_BUILD_ROOT%{_prefix}/afs/backup
+mkdir $RPM_BUILD_ROOT%{_prefix}/afs/bin
+### find all the executables in /usr/sbin
+for f in `find $RPM_BUILD_ROOT%{_prefix}/sbin -executable`; do
+    fb=`basename $f`
+    ln -s %{_sbindir}/$fb $RPM_BUILD_ROOT%{_prefix}/afs/bin/$fb
+done
+### find all the executables in /usr/libexec/openafs
+for f in `find $RPM_BUILD_ROOT%{_libexec}/openafs -executable`; do
+    fb=`basename $f`
+    ln -s %{_libexec}/openafs/$fb $RPM_BUILD_ROOT%{_prefix}/afs/bin/$fb
+done
+
 
 #
 # Remove files we're not installing
@@ -738,4 +875,24 @@ fi
 %{_mandir}/man1/aklog.*
 %{_mandir}/man1/klog.krb5.1.gz
 %{_mandir}/man8/asetkey.*
+
+%files compat
+%defattr(-,root,root)
+%{_prefix}/afsws
+
+%files transarc-client
+%defattr(-,root,root)
+%dir %{_prefix}/vice
+%{_prefix}/vice/*
+
+%files transarc-server
+%defattr(-,root,root)
+%dir %{_prefix}/afs
+%dir %{_prefix}/afs/bin
+%{_prefix}/afs/bin/*
+%{_prefix}/afs/backup
+%{_prefix}/afs/etc
+%{_prefix}/afs/db
+%{_prefix}/afs/local
+%{_prefix}/afs/logs
 
