@@ -10,6 +10,9 @@
 # Define the location of your init.d directory
 %define initdir /etc/rc.d/init.d
 
+# Define the location of the PAM security module directory
+%define pamdir /%{_lib}/security
+
 # Make sure RPM doesn't complain about installed but non-packaged files.
 #define __check_files  %{nil}
 
@@ -260,9 +263,10 @@ esac
 #ln -f $RPM_BUILD_ROOT%{_bindir}/kpasswd $RPM_BUILD_ROOT%{_bindir}/kapasswd
 
 # Copy root.client config files
-mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
+mkdir -p $RPM_BUILD_ROOT/etc/sysconfig/openafs
 mkdir -p $RPM_BUILD_ROOT%{initdir}
-install -m 755 src/packaging/RedHat/openafs.sysconfig $RPM_BUILD_ROOT/etc/sysconfig/openafs
+mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/cache/openafs
+install -m 755 src/packaging/RedHat/openafs.sysconfig $RPM_BUILD_ROOT/etc/sysconfig/openafs/openafs
 %if 0%{?fedora} < 15 && 0%{?rhel} < 7
 install -m 755 src/packaging/RedHat/openafs-client.init $RPM_BUILD_ROOT%{initdir}/openafs-client
 install -m 755 src/packaging/RedHat/openafs-server.init $RPM_BUILD_ROOT%{initdir}/openafs-server
@@ -274,9 +278,14 @@ install -m 755 src/packaging/RedHat/openafs-client.modules $RPM_BUILD_ROOT%{_sys
 install -m 755 src/packaging/RedHat/openafs-server.service $RPM_BUILD_ROOT%{_unitdir}/openafs-server.service
 %endif
 
+
+# Move PAM modules into correct location
+mkdir -p $RPM_BUILD_ROOT%{pamdir}
+mv $RPM_BUILD_ROOT%{_libdir}/pam_afs* $RPM_BUILD_ROOT%{pamdir}
+
 # PAM symlinks
-ln -sf pam_afs.so.1 $RPM_BUILD_ROOT%{_libdir}/pam_afs.so
-ln -sf pam_afs.krb.so.1 $RPM_BUILD_ROOT%{_libdir}/pam_afs.krb.so
+ln -sf pam_afs.so.1 $RPM_BUILD_ROOT%{pamdir}/pam_afs.so
+ln -sf pam_afs.krb.so.1 $RPM_BUILD_ROOT%{pamdir}/pam_afs.krb.so
 
 #
 # Install DOCUMENTATION
@@ -331,6 +340,23 @@ done
 rm -f $RPM_BUILD_ROOT%{_libdir}/libjuafs.a
 rm -f $RPM_BUILD_ROOT%{_libdir}/libuafs.a
 
+# Populate /etc/sysconfig/openafs
+install -p -m 644 src/packaging/RedHat/openafs-ThisCell $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/openafs/ThisCell
+install -p -m 644 %{SOURCE20} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/openafs/CellServDB.dist
+touch $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/openafs/CellServDB.local
+install -p -m 644 src/packaging/RedHat/openafs-cacheinfo $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/openafs/cacheinfo
+
+# Fix systemd service unit which has transarc paths
+## Fix location of environment file
+sed -i 's!EnvironmentFile=/etc/sysconfig/openafs!EnvironmentFile=%{_sysconfdir}/sysconfig/openafs/openafs!g' $RPM_BUILD_ROOT%{_unitdir}/openafs-client.service
+sed -i 's!EnvironmentFile=-/etc/sysconfig/openafs!EnvironmentFile=-%{_sysconfdir}/sysconfig/openafs/openafs-server!g' $RPM_BUILD_ROOT%{_unitdir}/openafs-server.service
+## Fix location of CellServDB
+sed -i 's!/usr/vice/etc/CellServDB!%{_sysconfdir}/sysconfig/openafs/CellServDB!g' $RPM_BUILD_ROOT%{_unitdir}/openafs-client.service
+## Fix the location of afsd
+sed -i 's!/usr/vice/etc/afsd!%{_sbindir}/afsd!' $RPM_BUILD_ROOT%{_unitdir}/openafs-client.service
+## Fix location of bosserver
+sed -i 's!/usr/afs/bin/bosserver!%{_sbindir}/bosserver!' $RPM_BUILD_ROOT%{_unitdir}/openafs-server.service
+
 ##############################################################################
 ###
 ### clean
@@ -363,11 +389,12 @@ if [ ! -d /afs ]; then
 fi
 
 # Create the CellServDB
-[ -f /usr/vice/etc/CellServDB.local ] || touch /usr/vice/etc/CellServDB.local
+[ -f %{_sysconfdir}/sysconfig/openafs/CellServDB.local ] || touch %{_sysconfdir}/openafs/CellServDB.local
 
-( cd /usr/vice/etc ; \
+( cd %{_sysconfdir}/sysconfig/openafs ; \
   cat CellServDB.local CellServDB.dist > CellServDB ; \
   chmod 644 CellServDB )
+
 
 %post server
 #on an upgrade, don't enable if we were disabled
@@ -532,22 +559,23 @@ fi
 
 %files client
 %defattr(-,root,root)
-#%dir %{_prefix}/vice
-#%dir %{_prefix}/vice/cache
-#%dir %{_prefix}/vice/etc
-#%dir %{_prefix}/vice/etc/C
-#%{_prefix}/vice/etc/CellServDB.dist
-#%config(noreplace) %{_prefix}/vice/etc/ThisCell
-#%config(noreplace) %{_prefix}/vice/etc/cacheinfo
+%dir %{_localstatedir}/cache/openafs
+%dir %{_sysconfdir}/sysconfig/openafs
+%{_sysconfdir}/sysconfig/openafs/CellServDB.dist
+%ghost %{_sysconfdir}/sysconfig/openafs/CellServDB
+%config(noreplace) %{_sysconfdir}/sysconfig/openafs/CellServDB.local
+%config(noreplace) %{_sysconfdir}/sysconfig/openafs/ThisCell
+%config(noreplace) %{_sysconfdir}/sysconfig/openafs/cacheinfo
+%config(noreplace) %{_sysconfdir}/sysconfig/openafs/openafs
 %{_bindir}/afsio
 %{_bindir}/cmdebug
 %{_bindir}/up
 %{_sbindir}/afsd
 %{_prefix}/share/openafs/C/afszcm.cat
-%{_libdir}/pam_afs.krb.so.1
-%{_libdir}/pam_afs.krb.so
-%{_libdir}/pam_afs.so.1
-%{_libdir}/pam_afs.so
+%{pamdir}/pam_afs.krb.so.1
+%{pamdir}/pam_afs.krb.so
+%{pamdir}/pam_afs.so.1
+%{pamdir}/pam_afs.so
 %if 0%{?fedora} < 15 && 0%{?rhel} < 7
 %{initdir}/openafs-client
 %else
@@ -567,6 +595,7 @@ fi
 
 %files server
 %defattr(-,root,root)
+%ghost %{_sysconfdir}/sysconfig/openafs/openafs-server
 %{_sbindir}/bosserver
 %{_sbindir}/bos_util
 %{_libexecdir}/openafs/buserver
