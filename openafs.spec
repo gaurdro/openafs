@@ -672,7 +672,8 @@ fi
 %{_mandir}/man5/uss_bulk.5.gz
 %{_mandir}/man8/bos*
 %{_mandir}/man8/fstrace*
-%{_mandir}/man8/kas*
+%{_mandir}/man8/kas.*
+%{_mandir}/man8/kas_*
 %{_mandir}/man1/sys.1.gz
 %{_mandir}/man8/backup*
 %{_mandir}/man5/butc.5.gz
@@ -801,6 +802,7 @@ fi
 %{_mandir}/man8/davolserver.*
 %{_mandir}/man8/kadb_check.*
 %{_mandir}/man8/ka-forwarder.*
+%{_mandir}/man8/kaserver.*
 %{_mandir}/man8/prdb_check.*
 %{_mandir}/man8/ptserver.*
 %{_mandir}/man8/pt_util.*
