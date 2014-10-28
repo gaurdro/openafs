@@ -1,7 +1,7 @@
 # Openafs Spec $Revision$
 
-%define afsvers 1.6.9
-%define pkgvers 1.6.9
+%define afsvers 1.6.10
+%define pkgvers 1.6.10
 # for beta/rc releases make pkgrel 0.<tag>
 # for real releases make pkgrel 1 (or more for extra releases)
 %define pkgrel 1
@@ -9,6 +9,9 @@
 
 # Define the location of your init.d directory
 %define initdir /etc/rc.d/init.d
+
+# Define the location of the PAM security module directory
+%define pamdir /%{_lib}/security
 
 # Make sure RPM doesn't complain about installed but non-packaged files.
 #define __check_files  %{nil}
@@ -190,6 +193,54 @@ This package provides compatibility programs so you can use krb5
 to authenticate to AFS services, instead of using AFS's homegrown
 krb4 lookalike services.
 
+%package compat
+Summary: OpenAFS client compatibility symlinks
+Requires: openafs = %{version}, openafs-client = %{version}
+Group: Networking/Filesystems
+Obsoletes: openafs-client-compat
+
+%description compat
+The AFS distributed filesystem.  AFS is a distributed filesystem
+allowing cross-platform sharing of files among multiple computers.
+Facilities are provided for access control, authentication, backup and
+administrative management.
+
+This package provides compatibility symlinks in /usr/afsws.  It is
+completely optional, and is only necessary to support legacy
+applications and scripts that hard-code the location of AFS client
+programs.
+
+%package transarc-client
+Summary: OpenAFS client compatibility symlinks
+Requires: openafs = %{version}, openafs-client = %{version}
+Group: Networking/Filesystems
+
+%description transarc-client
+The AFS distributed filesystem.  AFS is a distributed filesystem
+allowing cross-platform sharing of files among multiple computers.
+Facilities are provided for access control, authentication, backup and
+administrative management.
+
+This package provides compatibility symlinks for Transarc paths.  It
+is completely optional, and is only necessary to support legacy
+applications and scripts that hard-code the location of AFS client
+programs.
+
+%package transarc-server
+Summary: OpenAFS client compatibility symlinks
+Requires: openafs = %{version}, openafs-server = %{version}
+Group: Networking/Filesystems
+
+%description transarc-server
+The AFS distributed filesystem.  AFS is a distributed filesystem
+allowing cross-platform sharing of files among multiple computers.
+Facilities are provided for access control, authentication, backup and
+administrative management.
+
+This package provides compatibility symlinks for Transarc paths.  It
+is completely optional, and is only necessary to support legacy
+applications and scripts that hard-code the location of AFS client
+programs.
 
 ##############################################################################
 #
@@ -260,9 +311,10 @@ esac
 #ln -f $RPM_BUILD_ROOT%{_bindir}/kpasswd $RPM_BUILD_ROOT%{_bindir}/kapasswd
 
 # Copy root.client config files
-mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
+mkdir -p $RPM_BUILD_ROOT/etc/sysconfig/openafs
 mkdir -p $RPM_BUILD_ROOT%{initdir}
-install -m 755 src/packaging/RedHat/openafs.sysconfig $RPM_BUILD_ROOT/etc/sysconfig/openafs
+mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/cache/openafs
+install -m 755 src/packaging/RedHat/openafs.sysconfig $RPM_BUILD_ROOT/etc/sysconfig/openafs/openafs
 %if 0%{?fedora} < 15 && 0%{?rhel} < 7
 install -m 755 src/packaging/RedHat/openafs-client.init $RPM_BUILD_ROOT%{initdir}/openafs-client
 install -m 755 src/packaging/RedHat/openafs-server.init $RPM_BUILD_ROOT%{initdir}/openafs-server
@@ -274,9 +326,14 @@ install -m 755 src/packaging/RedHat/openafs-client.modules $RPM_BUILD_ROOT%{_sys
 install -m 755 src/packaging/RedHat/openafs-server.service $RPM_BUILD_ROOT%{_unitdir}/openafs-server.service
 %endif
 
+
+# Move PAM modules into correct location
+mkdir -p $RPM_BUILD_ROOT%{pamdir}
+mv $RPM_BUILD_ROOT%{_libdir}/pam_afs* $RPM_BUILD_ROOT%{pamdir}
+
 # PAM symlinks
-ln -sf pam_afs.so.1 $RPM_BUILD_ROOT%{_libdir}/pam_afs.so
-ln -sf pam_afs.krb.so.1 $RPM_BUILD_ROOT%{_libdir}/pam_afs.krb.so
+ln -sf pam_afs.so.1 $RPM_BUILD_ROOT%{pamdir}/pam_afs.so
+ln -sf pam_afs.krb.so.1 $RPM_BUILD_ROOT%{pamdir}/pam_afs.krb.so
 
 #
 # Install DOCUMENTATION
@@ -301,6 +358,95 @@ done
 
 # rename kpasswd to kapasswd
 #mv $RPM_BUILD_ROOT%{_mandir}/man1/kpasswd.1 $RPM_BUILD_ROOT%{_mandir}/man1/kapasswd.1
+
+#
+# create filelist
+#
+grep -v "^#" >openafs-file-list <<EOF-openafs-file-list
+%{_bindir}/afsmonitor
+%{_bindir}/bos
+%{_bindir}/fs
+%{_bindir}/kapasswd
+%{_bindir}/klog
+%{_bindir}/klog.krb
+%{_bindir}/pagsh
+%{_bindir}/pagsh.krb
+%{_bindir}/pts
+%{_bindir}/restorevol
+%{_bindir}/scout
+%{_bindir}/sys
+%{_bindir}/tokens
+%{_bindir}/tokens.krb
+%{_bindir}/translate_et
+%{_bindir}/xstat_cm_test
+%{_bindir}/xstat_fs_test
+%{_bindir}/udebug
+%{_bindir}/unlog
+%{_sbindir}/backup
+%{_sbindir}/butc
+%{_sbindir}/fms
+%{_sbindir}/fstrace
+%{_sbindir}/kas
+%{_sbindir}/read_tape
+%{_sbindir}/rxdebug
+%{_sbindir}/uss
+%{_sbindir}/vos
+%{_sbindir}/vsys
+EOF-openafs-file-list
+
+# add man pages to the list
+cat openafs-man1files \
+        | ( while read x; do echo "%{_mandir}/man1/$x"; done ) \
+        >>openafs-file-list
+cat openafs-man5files \
+        | ( while read x; do echo "%{_mandir}/man5/$x"; done ) \
+        >>openafs-file-list
+cat openafs-man8files \
+        | ( while read x; do echo "%{_mandir}/man8/$x"; done ) \
+        >>openafs-file-list
+
+#
+# Install compatiblity links
+#
+for d in bin:bin etc:sbin; do
+  olddir=`echo $d | sed 's/:.*$//'`
+  newdir=`echo $d | sed 's/^.*://'`
+  mkdir -p $RPM_BUILD_ROOT%{_prefix}/afsws/$olddir
+  for f in `cat openafs-file-list`; do
+    if echo $f | grep -q /$newdir/; then
+      fb=`basename $f`
+      ln -sf %{_prefix}/$newdir/$fb $RPM_BUILD_ROOT%{_prefix}/afsws/$olddir/$fb
+    fi
+  done
+done
+
+#
+# Install transarc links
+#
+## Client
+mkdir $RPM_BUILD_ROOT%{_prefix}/vice
+ln -s %{_sysconfdir}/sysconfig/openafs $RPM_BUILD_ROOT%{_prefix}/vice/etc
+ln -s %{_localstatedir}/cache/openafs $RPM_BUILD_ROOT%{_prefix}/vice/cache
+
+## Server
+mkdir $RPM_BUILD_ROOT%{_prefix}/afs
+ln -s %{_sysconfdir}/sysconfig/openafs/server $RPM_BUILD_ROOT%{_prefix}/afs/etc
+ln -s %{_localstatedir}/openafs $RPM_BUILD_ROOT%{_prefix}/afs/local
+ln -s %{_localstatedir}/openafs/db $RPM_BUILD_ROOT%{_prefix}/afs/db
+ln -s %{_localstatedir}/openafs/logs $RPM_BUILD_ROOT%{_prefix}/afs/logs
+ln -s %{_localstatedir}/openafs/backup $RPM_BUILD_ROOT%{_prefix}/afs/backup
+mkdir $RPM_BUILD_ROOT%{_prefix}/afs/bin
+### find all the executables in /usr/sbin
+for f in `find $RPM_BUILD_ROOT%{_prefix}/sbin -executable`; do
+    fb=`basename $f`
+    ln -s %{_sbindir}/$fb $RPM_BUILD_ROOT%{_prefix}/afs/bin/$fb
+done
+### find all the executables in /usr/libexec/openafs
+for f in `find $RPM_BUILD_ROOT%{_libexec}/openafs -executable`; do
+    fb=`basename $f`
+    ln -s %{_libexec}/openafs/$fb $RPM_BUILD_ROOT%{_prefix}/afs/bin/$fb
+done
+
 
 #
 # Remove files we're not installing
@@ -330,6 +476,23 @@ done
 #delete static libraries not in upstream package
 rm -f $RPM_BUILD_ROOT%{_libdir}/libjuafs.a
 rm -f $RPM_BUILD_ROOT%{_libdir}/libuafs.a
+
+# Populate /etc/sysconfig/openafs
+install -p -m 644 src/packaging/RedHat/openafs-ThisCell $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/openafs/ThisCell
+install -p -m 644 %{SOURCE20} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/openafs/CellServDB.dist
+touch $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/openafs/CellServDB.local
+install -p -m 644 src/packaging/RedHat/openafs-cacheinfo $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/openafs/cacheinfo
+
+# Fix systemd service unit which has transarc paths
+## Fix location of environment file
+sed -i 's!EnvironmentFile=/etc/sysconfig/openafs!EnvironmentFile=%{_sysconfdir}/sysconfig/openafs/openafs!g' $RPM_BUILD_ROOT%{_unitdir}/openafs-client.service
+sed -i 's!EnvironmentFile=-/etc/sysconfig/openafs!EnvironmentFile=-%{_sysconfdir}/sysconfig/openafs/openafs-server!g' $RPM_BUILD_ROOT%{_unitdir}/openafs-server.service
+## Fix location of CellServDB
+sed -i 's!/usr/vice/etc/CellServDB!%{_sysconfdir}/sysconfig/openafs/CellServDB!g' $RPM_BUILD_ROOT%{_unitdir}/openafs-client.service
+## Fix the location of afsd
+sed -i 's!/usr/vice/etc/afsd!%{_sbindir}/afsd!' $RPM_BUILD_ROOT%{_unitdir}/openafs-client.service
+## Fix location of bosserver
+sed -i 's!/usr/afs/bin/bosserver!%{_sbindir}/bosserver!' $RPM_BUILD_ROOT%{_unitdir}/openafs-server.service
 
 ##############################################################################
 ###
@@ -363,11 +526,12 @@ if [ ! -d /afs ]; then
 fi
 
 # Create the CellServDB
-[ -f /usr/vice/etc/CellServDB.local ] || touch /usr/vice/etc/CellServDB.local
+[ -f %{_sysconfdir}/sysconfig/openafs/CellServDB.local ] || touch %{_sysconfdir}/openafs/CellServDB.local
 
-( cd /usr/vice/etc ; \
+( cd %{_sysconfdir}/sysconfig/openafs ; \
   cat CellServDB.local CellServDB.dist > CellServDB ; \
   chmod 644 CellServDB )
+
 
 %post server
 #on an upgrade, don't enable if we were disabled
@@ -508,7 +672,8 @@ fi
 %{_mandir}/man5/uss_bulk.5.gz
 %{_mandir}/man8/bos*
 %{_mandir}/man8/fstrace*
-%{_mandir}/man8/kas*
+%{_mandir}/man8/kas.*
+%{_mandir}/man8/kas_*
 %{_mandir}/man1/sys.1.gz
 %{_mandir}/man8/backup*
 %{_mandir}/man5/butc.5.gz
@@ -532,22 +697,23 @@ fi
 
 %files client
 %defattr(-,root,root)
-#%dir %{_prefix}/vice
-#%dir %{_prefix}/vice/cache
-#%dir %{_prefix}/vice/etc
-#%dir %{_prefix}/vice/etc/C
-#%{_prefix}/vice/etc/CellServDB.dist
-#%config(noreplace) %{_prefix}/vice/etc/ThisCell
-#%config(noreplace) %{_prefix}/vice/etc/cacheinfo
+%dir %{_localstatedir}/cache/openafs
+%dir %{_sysconfdir}/sysconfig/openafs
+%{_sysconfdir}/sysconfig/openafs/CellServDB.dist
+%ghost %{_sysconfdir}/sysconfig/openafs/CellServDB
+%config(noreplace) %{_sysconfdir}/sysconfig/openafs/CellServDB.local
+%config(noreplace) %{_sysconfdir}/sysconfig/openafs/ThisCell
+%config(noreplace) %{_sysconfdir}/sysconfig/openafs/cacheinfo
+%config(noreplace) %{_sysconfdir}/sysconfig/openafs/openafs
 %{_bindir}/afsio
 %{_bindir}/cmdebug
 %{_bindir}/up
 %{_sbindir}/afsd
 %{_prefix}/share/openafs/C/afszcm.cat
-%{_libdir}/pam_afs.krb.so.1
-%{_libdir}/pam_afs.krb.so
-%{_libdir}/pam_afs.so.1
-%{_libdir}/pam_afs.so
+%{pamdir}/pam_afs.krb.so.1
+%{pamdir}/pam_afs.krb.so
+%{pamdir}/pam_afs.so.1
+%{pamdir}/pam_afs.so
 %if 0%{?fedora} < 15 && 0%{?rhel} < 7
 %{initdir}/openafs-client
 %else
@@ -567,6 +733,7 @@ fi
 
 %files server
 %defattr(-,root,root)
+%ghost %{_sysconfdir}/sysconfig/openafs/openafs-server
 %{_sbindir}/bosserver
 %{_sbindir}/bos_util
 %{_libexecdir}/openafs/buserver
@@ -595,6 +762,7 @@ fi
 %{_sbindir}/vldb_check
 %{_sbindir}/vldb_convert
 %{_sbindir}/voldump
+%{_sbindir}/volscan
 %if 0%{?fedora} < 15 && 0%{?rhel} < 7
 %{initdir}/openafs-server
 %else
@@ -634,6 +802,7 @@ fi
 %{_mandir}/man8/davolserver.*
 %{_mandir}/man8/kadb_check.*
 %{_mandir}/man8/ka-forwarder.*
+%{_mandir}/man8/kaserver.*
 %{_mandir}/man8/prdb_check.*
 %{_mandir}/man8/ptserver.*
 %{_mandir}/man8/pt_util.*
@@ -647,6 +816,7 @@ fi
 %{_mandir}/man8/vlserver.*
 %{_mandir}/man8/voldump.*
 %{_mandir}/man8/volinfo.*
+%{_mandir}/man8/volscan.*
 %{_mandir}/man8/volserver.*
 
 %files authlibs
@@ -709,4 +879,24 @@ fi
 %{_mandir}/man1/aklog.*
 %{_mandir}/man1/klog.krb5.1.gz
 %{_mandir}/man8/asetkey.*
+
+%files compat
+%defattr(-,root,root)
+%{_prefix}/afsws
+
+%files transarc-client
+%defattr(-,root,root)
+%dir %{_prefix}/vice
+%{_prefix}/vice/*
+
+%files transarc-server
+%defattr(-,root,root)
+%dir %{_prefix}/afs
+%dir %{_prefix}/afs/bin
+%{_prefix}/afs/bin/*
+%{_prefix}/afs/backup
+%{_prefix}/afs/etc
+%{_prefix}/afs/db
+%{_prefix}/afs/local
+%{_prefix}/afs/logs
 
