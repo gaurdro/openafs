@@ -1,7 +1,7 @@
 # Openafs Spec $Revision$
 
-%define afsvers 1.6.9
-%define pkgvers 1.6.9
+%define afsvers 1.6.10
+%define pkgvers 1.6.10
 # for beta/rc releases make pkgrel 0.<tag>
 # for real releases make pkgrel 1 (or more for extra releases)
 %define pkgrel 1
@@ -761,6 +761,7 @@ fi
 %{_sbindir}/vldb_check
 %{_sbindir}/vldb_convert
 %{_sbindir}/voldump
+%{_sbindir}/volscan
 %if 0%{?fedora} < 15 && 0%{?rhel} < 7
 %{initdir}/openafs-server
 %else
@@ -813,6 +814,7 @@ fi
 %{_mandir}/man8/vlserver.*
 %{_mandir}/man8/voldump.*
 %{_mandir}/man8/volinfo.*
+%{_mandir}/man8/volscan.*
 %{_mandir}/man8/volserver.*
 
 %files authlibs
