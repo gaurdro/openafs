@@ -270,11 +270,8 @@ CFLAGS="$RPM_OPT_FLAGS"; export CFLAGS
 
 KRB5_CONFIG="%{krb5config}"
 export KRB5_CONFIG
-./configure --with-afs-sysname=${sysname} \
-       --prefix=%{_prefix} \
-       --libdir=%{_libdir} \
-       --bindir=%{_bindir} \
-       --sbindir=%{_sbindir} \
+%configure \
+       --with-afs-sysname=${sysname} \
        --disable-strip-binaries \
        --disable-kernel-module \
        --enable-debug \
@@ -311,10 +308,11 @@ esac
 #ln -f $RPM_BUILD_ROOT%{_bindir}/kpasswd $RPM_BUILD_ROOT%{_bindir}/kapasswd
 
 # Copy root.client config files
-mkdir -p $RPM_BUILD_ROOT/etc/sysconfig/openafs
+mkdir -p $RPM_BUILD_ROOT/etc/openafs
+mkdir -p $RPM_BUILD_ROOT/etc/sysconfig
 mkdir -p $RPM_BUILD_ROOT%{initdir}
 mkdir -p $RPM_BUILD_ROOT%{_localstatedir}/cache/openafs
-install -m 755 src/packaging/RedHat/openafs.sysconfig $RPM_BUILD_ROOT/etc/sysconfig/openafs/openafs
+install -m 755 src/packaging/RedHat/openafs.sysconfig $RPM_BUILD_ROOT/etc/sysconfig/openafs
 %if 0%{?fedora} < 15 && 0%{?rhel} < 7
 install -m 755 src/packaging/RedHat/openafs-client.init $RPM_BUILD_ROOT%{initdir}/openafs-client
 install -m 755 src/packaging/RedHat/openafs-server.init $RPM_BUILD_ROOT%{initdir}/openafs-server
@@ -425,12 +423,12 @@ done
 #
 ## Client
 mkdir $RPM_BUILD_ROOT%{_prefix}/vice
-ln -s %{_sysconfdir}/sysconfig/openafs $RPM_BUILD_ROOT%{_prefix}/vice/etc
+ln -s %{_sysconfdir}/openafs $RPM_BUILD_ROOT%{_prefix}/vice/etc
 ln -s %{_localstatedir}/cache/openafs $RPM_BUILD_ROOT%{_prefix}/vice/cache
 
 ## Server
 mkdir $RPM_BUILD_ROOT%{_prefix}/afs
-ln -s %{_sysconfdir}/sysconfig/openafs/server $RPM_BUILD_ROOT%{_prefix}/afs/etc
+ln -s %{_sysconfdir}/openafs/server $RPM_BUILD_ROOT%{_prefix}/afs/etc
 ln -s %{_localstatedir}/openafs $RPM_BUILD_ROOT%{_prefix}/afs/local
 ln -s %{_localstatedir}/openafs/db $RPM_BUILD_ROOT%{_prefix}/afs/db
 ln -s %{_localstatedir}/openafs/logs $RPM_BUILD_ROOT%{_prefix}/afs/logs
@@ -477,22 +475,32 @@ done
 rm -f $RPM_BUILD_ROOT%{_libdir}/libjuafs.a
 rm -f $RPM_BUILD_ROOT%{_libdir}/libuafs.a
 
-# Populate /etc/sysconfig/openafs
-install -p -m 644 src/packaging/RedHat/openafs-ThisCell $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/openafs/ThisCell
-install -p -m 644 %{SOURCE20} $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/openafs/CellServDB.dist
-touch $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/openafs/CellServDB.local
-install -p -m 644 src/packaging/RedHat/openafs-cacheinfo $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/openafs/cacheinfo
+# Populate /etc/openafs
+install -p -m 644 src/packaging/RedHat/openafs-ThisCell $RPM_BUILD_ROOT%{_sysconfdir}/openafs/ThisCell
+install -p -m 644 %{SOURCE20} $RPM_BUILD_ROOT%{_sysconfdir}/openafs/CellServDB.dist
+touch $RPM_BUILD_ROOT%{_sysconfdir}/openafs/CellServDB.local
+install -p -m 644 src/packaging/RedHat/openafs-cacheinfo $RPM_BUILD_ROOT%{_sysconfdir}/openafs/cacheinfo
+
+# Populate /etc/openafs/server
+## Create empty files to be configured later
+mkdir $RPM_BUILD_ROOT%{_sysconfdir}/openafs/server
+touch $RPM_BUILD_ROOT%{_sysconfdir}/openafs/server/CellServDB
+touch $RPM_BUILD_ROOT%{_sysconfdir}/openafs/server/ThisCell
+touch $RPM_BUILD_ROOT%{_sysconfdir}/openafs/server/krb.conf
+touch $RPM_BUILD_ROOT%{_sysconfdir}/openafs/server/UserList
+
 
 # Fix systemd service unit which has transarc paths
 ## Fix location of environment file
-sed -i 's!EnvironmentFile=/etc/sysconfig/openafs!EnvironmentFile=%{_sysconfdir}/sysconfig/openafs/openafs!g' $RPM_BUILD_ROOT%{_unitdir}/openafs-client.service
-sed -i 's!EnvironmentFile=-/etc/sysconfig/openafs!EnvironmentFile=-%{_sysconfdir}/sysconfig/openafs/openafs-server!g' $RPM_BUILD_ROOT%{_unitdir}/openafs-server.service
+sed -i 's!EnvironmentFile=-/etc/sysconfig/openafs!EnvironmentFile=-%{_sysconfdir}/sysconfig/openafs-server!g' $RPM_BUILD_ROOT%{_unitdir}/openafs-server.service
 ## Fix location of CellServDB
-sed -i 's!/usr/vice/etc/CellServDB!%{_sysconfdir}/sysconfig/openafs/CellServDB!g' $RPM_BUILD_ROOT%{_unitdir}/openafs-client.service
+sed -i 's!/usr/vice/etc/CellServDB!%{_sysconfdir}/openafs/CellServDB!g' $RPM_BUILD_ROOT%{_unitdir}/openafs-client.service
 ## Fix the location of afsd
 sed -i 's!/usr/vice/etc/afsd!%{_sbindir}/afsd!' $RPM_BUILD_ROOT%{_unitdir}/openafs-client.service
 ## Fix location of bosserver
 sed -i 's!/usr/afs/bin/bosserver!%{_sbindir}/bosserver!' $RPM_BUILD_ROOT%{_unitdir}/openafs-server.service
+## Fix cacheinfo to point at /var/cache/openafs
+sed -i 's!/usr/vice/cache!%{_localstatedir}/cache/openafs!' $RPM_BUILD_ROOT%{_sysconfdir}/openafs/cacheinfo
 
 ##############################################################################
 ###
@@ -528,7 +536,7 @@ fi
 # Create the CellServDB
 [ -f %{_sysconfdir}/sysconfig/openafs/CellServDB.local ] || touch %{_sysconfdir}/openafs/CellServDB.local
 
-( cd %{_sysconfdir}/sysconfig/openafs ; \
+( cd %{_sysconfdir}/openafs ; \
   cat CellServDB.local CellServDB.dist > CellServDB ; \
   chmod 644 CellServDB )
 
@@ -698,13 +706,12 @@ fi
 %files client
 %defattr(-,root,root)
 %dir %{_localstatedir}/cache/openafs
-%dir %{_sysconfdir}/sysconfig/openafs
-%{_sysconfdir}/sysconfig/openafs/CellServDB.dist
-%ghost %{_sysconfdir}/sysconfig/openafs/CellServDB
-%config(noreplace) %{_sysconfdir}/sysconfig/openafs/CellServDB.local
-%config(noreplace) %{_sysconfdir}/sysconfig/openafs/ThisCell
-%config(noreplace) %{_sysconfdir}/sysconfig/openafs/cacheinfo
-%config(noreplace) %{_sysconfdir}/sysconfig/openafs/openafs
+%{_sysconfdir}/openafs/CellServDB.dist
+%ghost %{_sysconfdir}/openafs/CellServDB
+%config(noreplace) %{_sysconfdir}/openafs/CellServDB.local
+%config(noreplace) %{_sysconfdir}/openafs/ThisCell
+%config(noreplace) %{_sysconfdir}/openafs/cacheinfo
+%config(noreplace) %{_sysconfdir}/sysconfig/openafs
 %{_bindir}/afsio
 %{_bindir}/cmdebug
 %{_bindir}/up
@@ -733,7 +740,14 @@ fi
 
 %files server
 %defattr(-,root,root)
-%ghost %{_sysconfdir}/sysconfig/openafs/openafs-server
+%dir %{_sysconfdir}/openafs/server
+%config(noreplace) %{_sysconfdir}/openafs/server/CellServDB
+%config(noreplace) %{_sysconfdir}/openafs/server/ThisCell
+%config(noreplace) %{_sysconfdir}/openafs/server/UserList
+%config(noreplace) %{_sysconfdir}/openafs/server/krb.conf
+%ghost %config(noreplace) %{_sysconfdir}/openafs/BosConfig
+%ghost %config(noreplace) %{_sysconfdir}/openafs/server/rxkad.keytab
+%ghost %config(noreplace) %{_sysconfdir}/sysconfig/openafs-server
 %{_sbindir}/bosserver
 %{_sbindir}/bos_util
 %{_libexecdir}/openafs/buserver
