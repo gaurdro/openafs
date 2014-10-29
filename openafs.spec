@@ -270,11 +270,9 @@ CFLAGS="$RPM_OPT_FLAGS"; export CFLAGS
 
 KRB5_CONFIG="%{krb5config}"
 export KRB5_CONFIG
-./configure --with-afs-sysname=${sysname} \
-       --prefix=%{_prefix} \
-       --libdir=%{_libdir} \
-       --bindir=%{_bindir} \
-       --sbindir=%{_sbindir} \
+%configure \
+       --sysconfdir=%{_sysconfdir}/sysconfig \
+       --with-afs-sysname=${sysname} \
        --disable-strip-binaries \
        --disable-kernel-module \
        --enable-debug \
