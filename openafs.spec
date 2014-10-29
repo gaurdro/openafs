@@ -491,6 +491,8 @@ sed -i 's!/usr/vice/etc/CellServDB!%{_sysconfdir}/sysconfig/openafs/CellServDB!g
 sed -i 's!/usr/vice/etc/afsd!%{_sbindir}/afsd!' $RPM_BUILD_ROOT%{_unitdir}/openafs-client.service
 ## Fix location of bosserver
 sed -i 's!/usr/afs/bin/bosserver!%{_sbindir}/bosserver!' $RPM_BUILD_ROOT%{_unitdir}/openafs-server.service
+## Fix cacheinfo to point at /var/cache/openafs
+sed -i 's!/usr/vice/cache!%{_localstatedir}/cache/openafs!' $RPM_BUILD_ROOT%{_sysconfdir}/sysconfig/openafs/cacheinfo
 
 ##############################################################################
 ###
