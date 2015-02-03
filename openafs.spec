@@ -502,6 +502,10 @@ sed -i 's!/usr/afs/bin/bosserver!%{_sbindir}/bosserver!' $RPM_BUILD_ROOT%{_unitd
 ## Fix cacheinfo to point at /var/cache/openafs
 sed -i 's!/usr/vice/cache!%{_localstatedir}/cache/openafs!' $RPM_BUILD_ROOT%{_sysconfdir}/openafs/cacheinfo
 
+# Set the executable bit on libraries in libdir, so rpmbuild knows to
+# create "Provides" entries in the package metadata for the libraries
+chmod +x $RPM_BUILD_ROOT%{_libdir}/*.so*
+
 ##############################################################################
 ###
 ### clean
