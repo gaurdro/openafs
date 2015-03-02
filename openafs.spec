@@ -1,7 +1,7 @@
 # Openafs Spec $Revision$
 
-%define afsvers 1.6.10
-%define pkgvers 1.6.10
+%define afsvers 1.6.11
+%define pkgvers 1.6.11
 # for beta/rc releases make pkgrel 0.<tag>
 # for real releases make pkgrel 1 (or more for extra releases)
 %define pkgrel 1
@@ -917,4 +917,17 @@ fi
 %{_prefix}/afs/db
 %{_prefix}/afs/local
 %{_prefix}/afs/logs
+
+
+##############################################################################
+###
+### openafs.spec change log
+###
+##############################################################################
+%changelog
+* Mon Mar 02 2015 Jonathan S. Billings <jsbillin@umich.edu> - 1.6.11-1
+- rebuilt against 1.6.11
+
+* Wed Oct  1 2014 Jonathan S. Billings <jsbillin@umich.edu> - 1.6.9-1
+- Created initial spec file
 
